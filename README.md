@@ -1,106 +1,167 @@
 # Gesture Media Control
 
-Control media playback and volume with hand gestures using a webcam, OpenCV, and MediaPipe.
+Controlează muzica, videoclipurile, modul ecran complet și volumul folosind
+gesturi ale mâinii surprinse de camera web.
 
-## Features
+Proiect realizat cu **Python**, **MediaPipe**, **OpenCV**, **PyAutoGUI** și
+**PyCAW** pentru controlul audio integrat în Windows.
 
-- `Open Palm` -> Play / Pause
-- `Thumb Right` -> Next track
-- `Thumb Left` -> Previous track
-- `Index Up` -> Windows volume up
-- `Index Down` -> Windows volume down
-- `Two Fingers` -> Mute
-- `Pinch`, then `index highest + thumb furthest sideways` -> app-aware fullscreen
-- `Four fingers extended` dynamic gesture -> multi-step active-app volume control based on finger tilt
+## Ce Face Aplicația
 
-## Requirements
+Gesture Media Control urmărește o mână în timp real, recunoaște gesturi
+intenționate și le transformă în comenzi multimedia. Fereastra camerei afișează
+gestul detectat, ultima acțiune executată, starea degetelor, durata de
+menținere a gestului și informații despre controlul dinamic al volumului.
 
-- Python `3.10`, `3.11`, or `3.12`
-- A webcam
-- MediaPipe version that still exposes `mp.solutions`
+| Gest | Acțiune |
+| --- | --- |
+| Palmă deschisă | Redare / pauză |
+| Degetul mare spre dreapta | Melodia următoare |
+| Degetul mare spre stânga | Melodia anterioară |
+| Arătătorul în sus | Crește volumul sistemului |
+| Arătătorul în jos | Scade volumul sistemului |
+| Două degete ridicate | Dezactivează / activează sunetul |
+| Ciupire, apoi arătătorul în sus și degetul mare lateral | Ecran complet |
+| Patru degete întinse, înclinate în sus sau în jos | Volumul aplicației active |
 
-This project currently uses the classic `mp.solutions.hands` API, so `mediapipe==0.10.14` is recommended.
+Gestul dinamic pentru volum ajustează sesiunea audio Windows a aplicației
+aflate în prim-plan, atunci când aceasta este disponibilă. O înclinare mai
+accentuată aplică mai mulți pași de volum simultan.
 
-## Installation
+## Funcționalități Principale
 
-Create and activate a virtual environment:
+- Urmărirea în timp real a reperelor mâinii prin camera web
+- Timpi de menținere și pauze între comenzi pentru a reduce activările accidentale
+- Comandă de ecran complet adaptată pentru YouTube și VLC
+- Reglarea volumului aplicației active, atunci când aceasta expune o sesiune audio Windows
+- Afișaj live pentru verificarea gesturilor și a pragurilor de detectare
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
+## Cerințe
 
-Install dependencies:
+- Windows
+- Python `3.10`, `3.11` sau `3.12`
+- O cameră web
 
-```powershell
-pip install -r requirements.txt
-```
+Proiectul folosește API-ul clasic `mp.solutions.hands`. Dependența fixată
+`mediapipe==0.10.14` este recomandată deoarece unele combinații mai noi de
+Python și MediaPipe pot să nu expună acest API.
 
-## Run
+## Pornire Rapidă
 
-```powershell
-python .\gesture_media_control.py
-```
+1. Clonează repository-ul și deschide folderul proiectului.
 
-Press `q` to close the camera window.
+2. Creează și activează un mediu virtual:
 
-## Enable Media Key Actions
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
 
-The app can either:
+3. Instalează dependențele:
 
-- detect gestures and show them in the overlay
-- detect gestures and send media key presses to the OS
+   ```powershell
+   pip install -r requirements.txt
+   ```
 
-To enable real media key actions, open [gesture_constants.py](C:\workspace\gesture-media-control\gesture_constants.py) and set:
+4. Reține că aplicația trimite implicit comenzi multimedia reale către
+   sistem. Pentru un test doar vizual, setează `USE_PYAUTOGUI = False` în
+   [gesture_constants.py](gesture_constants.py) înainte de pornire.
+
+5. Pornește aplicația:
+
+   ```powershell
+   python .\gesture_media_control.py
+   ```
+
+6. Menține un gest recunoscut în fața camerei. Apasă `q` pentru a închide
+   fereastra camerei.
+
+## Comenzi Și Comportament
+
+Executarea comenzilor este activată implicit prin `USE_PYAUTOGUI = True` în
+[gesture_constants.py](gesture_constants.py). Pentru a testa detectarea
+gesturilor fără a trimite comenzi multimedia reale, setează valoarea la
+`False`:
 
 ```python
-USE_PYAUTOGUI = True
+USE_PYAUTOGUI = False
 ```
 
-When it is `False`, the app still detects gestures and logs actions, but it does not press system keys.
+### Ecran Complet
 
-The dynamic app-volume gesture first tries to change the actual Windows audio session volume of the currently focused application. That works much better across apps such as:
+Gestul pentru ecran complet alege scurtătura în funcție de aplicația aflată în
+prim-plan:
 
-- Spotify
-- YouTube in a browser
-- VLC
-- other apps that expose a normal Windows audio session
+| Aplicație activă | Tastă trimisă |
+| --- | --- |
+| YouTube în Chrome, Edge, Firefox, Brave sau Opera | `F` |
+| VLC | `F` |
+| Alte aplicații | `F11` |
 
-If session-based volume control is not available, it falls back to keyboard shortcuts:
-
-```python
-DEFAULT_APP_VOLUME_UP_BINDING = "up"
-DEFAULT_APP_VOLUME_DOWN_BINDING = "down"
-```
-
-The per-step volume delta is configurable in [gesture_constants.py](C:\workspace\gesture-media-control\gesture_constants.py):
-
-```python
-APP_VOLUME_STEP = 0.05
-```
-
-Fullscreen is also app-aware:
-
-- on YouTube in a browser, it sends `F` to the player
-- in VLC, it sends `F`
-- in other apps, it sends `F11`
-
-You can change those bindings in [gesture_constants.py](C:\workspace\gesture-media-control\gesture_constants.py):
+Scurtătura implicită de rezervă poate fi schimbată în
+[gesture_constants.py](gesture_constants.py):
 
 ```python
 DEFAULT_FULLSCREEN_BINDING = "f11"
 ```
 
-## Project Structure
+### Volumul Dinamic Al Aplicației
 
-- [gesture_media_control.py](C:\workspace\gesture-media-control\gesture_media_control.py): entrypoint
-- [gesture_app.py](C:\workspace\gesture-media-control\gesture_app.py): webcam loop and overlay
-- [gesture_detection.py](C:\workspace\gesture-media-control\gesture_detection.py): gesture classification
-- [gesture_helpers.py](C:\workspace\gesture-media-control\gesture_helpers.py): finger and geometry helpers
-- [gesture_actions.py](C:\workspace\gesture-media-control\gesture_actions.py): media command execution
-- [gesture_constants.py](C:\workspace\gesture-media-control\gesture_constants.py): thresholds and configuration
+Cu patru degete întinse și degetul mare pliat, înclină degetele pentru a regla
+volumul sesiunii audio a aplicației aflate în prim-plan. Dacă nu este detectată
+o sesiune audio Windows compatibilă, aplicația încearcă tastele configurate ca
+variantă de rezervă. Efectul acestor taste depinde de aplicația aflată în
+prim-plan.
 
-## Notes
+```python
+APP_VOLUME_STEP = 0.05
+DEFAULT_APP_VOLUME_UP_BINDING = "up"
+DEFAULT_APP_VOLUME_DOWN_BINDING = "down"
+```
 
-- If MediaPipe installs correctly but `mp.solutions` is missing, make sure you are not using Python `3.14`.
-- If gestures feel too sensitive or too strict, tune the thresholds in [gesture_constants.py](C:\workspace\gesture-media-control\gesture_constants.py).
+## Configurare
+
+Valorile pentru reglaj fin se află în
+[gesture_constants.py](gesture_constants.py).
+
+| Setare | Rol | Valoare implicită |
+| --- | --- | --- |
+| `COMMAND_HOLD_TIME` | Timpul necesar înainte de activarea unei comenzi standard | `0.35` s |
+| `COMMAND_COOLDOWN` | Pauza dintre comenzile standard | `1.2` s |
+| `VOLUME_HOLD_TIME` | Timpul necesar înainte de activarea unei comenzi de volum | `0.2` s |
+| `VOLUME_COOLDOWN` | Pauza dintre comenzile repetate de volum | `0.25` s |
+| `VOLUME_REPEAT_DELAY` | Întârzierea înainte de repetarea continuă a volumului | `1.0` s |
+| `APP_VOLUME_STEP` | Variația volumului la fiecare pas dinamic | `0.05` |
+| `PINCH_ARM_TIMEOUT` | Timpul disponibil pentru completarea gestului de ecran complet | `2.0` s |
+
+## Structura Proiectului
+
+| Fișier | Responsabilitate |
+| --- | --- |
+| [gesture_media_control.py](gesture_media_control.py) | Punctul de pornire al aplicației |
+| [gesture_app.py](gesture_app.py) | Bucla camerei web, ciclul gesturilor și informațiile afișate |
+| [gesture_detection.py](gesture_detection.py) | Recunoașterea gesturilor statice și dinamice |
+| [gesture_helpers.py](gesture_helpers.py) | Calcule geometrice și determinarea stării degetelor |
+| [gesture_actions.py](gesture_actions.py) | Trimiterea tastelor, contextul aplicației active și sesiunile audio |
+| [gesture_constants.py](gesture_constants.py) | Scurtături, praguri, timpi și opțiuni |
+
+## Limitări Cunoscute
+
+- Este urmărită o singură mână la un moment dat.
+- Calitatea detectării depinde de iluminare, claritatea camerei și poziția mâinii.
+- Controlul volumului aplicației active folosește funcționalități specifice Windows.
+- Tastele de rezervă pentru volumul aplicației nu au același efect în toate programele.
+
+## Rezolvarea Problemelor
+
+| Problemă | Soluție recomandată |
+| --- | --- |
+| Fereastra camerei nu se deschide | Verifică dacă o altă aplicație folosește camera web. |
+| Lipsește `mp.solutions` | Folosește Python `3.10`-`3.12` și reinstalează dependențele din `requirements.txt`. |
+| Gesturile se activează prea ușor sau prea greu | Ajustează timpii și pragurile din [gesture_constants.py](gesture_constants.py). |
+| Volumul aplicației active folosește tastele de rezervă | Asigură-te că aplicația activă redă sunet și expune o sesiune audio Windows; comportamentul tastelor depinde de program. |
+
+## Confidențialitate
+
+Cadrele video sunt procesate local doar cât timp aplicația rulează. Proiectul
+nu implementează înregistrarea camerei sau transmiterea imaginilor prin rețea.

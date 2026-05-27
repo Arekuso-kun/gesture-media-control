@@ -16,8 +16,8 @@ menținere a gestului și informații despre controlul dinamic al volumului.
 | Gest | Acțiune |
 | --- | --- |
 | Palmă deschisă | Redare / pauză |
-| Degetul mare spre dreapta | Melodia următoare |
-| Degetul mare spre stânga | Melodia anterioară |
+| Degetul mare spre dreapta | Elementul multimedia următor |
+| Degetul mare spre stânga | Elementul multimedia anterior |
 | Arătătorul în sus | Crește volumul sistemului |
 | Arătătorul în jos | Scade volumul sistemului |
 | Două degete ridicate | Dezactivează / activează sunetul |

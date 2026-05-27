@@ -7,11 +7,11 @@ Control media playback and volume with hand gestures using a webcam, OpenCV, and
 - `Open Palm` -> Play / Pause
 - `Thumb Right` -> Next track
 - `Thumb Left` -> Previous track
-- `Index Up` -> Volume up
-- `Index Down` -> Volume down
+- `Index Up` -> Windows volume up
+- `Index Down` -> Windows volume down
 - `Two Fingers` -> Mute
-- `Pinch`, then `index highest + thumb furthest sideways` -> Fullscreen
-- `Four fingers extended` dynamic gesture -> multi-step volume control based on finger tilt
+- `Pinch`, then `index highest + thumb furthest sideways` -> app-aware fullscreen
+- `Four fingers extended` dynamic gesture -> multi-step active-app volume control based on finger tilt
 
 ## Requirements
 
@@ -58,6 +58,38 @@ USE_PYAUTOGUI = True
 ```
 
 When it is `False`, the app still detects gestures and logs actions, but it does not press system keys.
+
+The dynamic app-volume gesture first tries to change the actual Windows audio session volume of the currently focused application. That works much better across apps such as:
+
+- Spotify
+- YouTube in a browser
+- VLC
+- other apps that expose a normal Windows audio session
+
+If session-based volume control is not available, it falls back to keyboard shortcuts:
+
+```python
+DEFAULT_APP_VOLUME_UP_BINDING = "up"
+DEFAULT_APP_VOLUME_DOWN_BINDING = "down"
+```
+
+The per-step volume delta is configurable in [gesture_constants.py](C:\workspace\gesture-media-control\gesture_constants.py):
+
+```python
+APP_VOLUME_STEP = 0.05
+```
+
+Fullscreen is also app-aware:
+
+- on YouTube in a browser, it sends `F` to the player
+- in VLC, it sends `F`
+- in other apps, it sends `F11`
+
+You can change those bindings in [gesture_constants.py](C:\workspace\gesture-media-control\gesture_constants.py):
+
+```python
+DEFAULT_FULLSCREEN_BINDING = "f11"
+```
 
 ## Project Structure
 

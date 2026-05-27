@@ -36,8 +36,8 @@ GESTURE_LABELS = {
     "THUMB_LEFT": "Thumb Left",
     "INDEX_UP": "Index Up",
     "INDEX_DOWN": "Index Down",
-    "FOUR_FINGERS_VOLUME_UP": "Dynamic Volume Up",
-    "FOUR_FINGERS_VOLUME_DOWN": "Dynamic Volume Down",
+    "FOUR_FINGERS_VOLUME_UP": "Dynamic App Volume Up",
+    "FOUR_FINGERS_VOLUME_DOWN": "Dynamic App Volume Down",
     "PINCH_ZOOM_IN": "Pinch Fullscreen",
     "TWO_FINGERS": "Two Fingers",
 }
@@ -117,17 +117,17 @@ def main():
                     angle_degrees = dynamic_volume["angle_degrees"]
                     if dynamic_volume["gesture"] == "NONE":
                         volume_status_text = (
-                            f"Dynamic Volume: neutral {angle_degrees:.0f} deg"
+                            f"Dynamic App Volume: neutral {angle_degrees:.0f} deg"
                         )
                     else:
                         current_gesture = dynamic_volume["gesture"]
                         current_volume_repeat_count = dynamic_volume["steps"]
                         volume_status_text = (
-                            f"Dynamic Volume: {angle_degrees:.0f} deg "
+                            f"Dynamic App Volume: {angle_degrees:.0f} deg "
                             f"x{current_volume_repeat_count}"
                         )
                 else:
-                    volume_status_text = "Dynamic Volume: idle"
+                    volume_status_text = "Dynamic App Volume: idle"
 
                 pinching = is_thumb_index_touching(hand_landmarks.landmark)
 
@@ -211,7 +211,7 @@ def main():
                 active_volume_gesture = "NONE"
                 active_volume_since = 0.0
                 volume_initial_triggered = False
-                volume_status_text = "Dynamic Volume: idle"
+                volume_status_text = "Dynamic App Volume: idle"
                 tracked_gesture = "NONE"
                 tracked_gesture_since = time.time()
 
